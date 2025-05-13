@@ -16,7 +16,7 @@ Core components:
 -  **Decoder-only MLP**: Maps `z` to a 3D point cloud
 -  **Loss**: Chamfer distance
 
-## 🧪 Experiment Setups
+## Experiment Setups
 
 | Folder        | Description                               |
 |---------------|-------------------------------------------|
