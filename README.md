@@ -1,6 +1,6 @@
 # Latent Shape Compensation
 
-A self-supervised framework for correcting geometric distortion in manufacturing by optimizing a latent vector through a neural decoder — no labels or ground-truth data needed.
+An end-to-end self-supervised framework for correcting geometric distortion in manufacturing by optimizing a latent vector through a neural decoder — no labels or ground-truth data needed.
 
 ---
 
