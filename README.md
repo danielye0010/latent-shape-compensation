@@ -24,7 +24,7 @@ Core components:
 | `variation1/` | Multiple sizes, fixed deformation         |
 | `variation2/` | Single object, multiple deformations      |
 
-### 3. Output files
+### Visualization
 - `comparison.png` — 4-view comparison (original, deformed, compensated, built)
 - `error.png` — Heatmap of error magnitude
 - `rotation.gif` — Rotating 3D view of final built shape
