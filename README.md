@@ -1,30 +1,63 @@
-# Latent Shape Compensation
+# Latent-Parameterized Geometric Compensation
 
-An end-to-end self-supervised framework for correcting geometric distortion in manufacturing by optimizing a latent vector through a neural decoder — no labels or ground-truth data needed.
+A simulation-driven prototype for geometric compensation in manufacturing using a neural decoder as a compact shape parameterization.
 
----
+The core idea is simple: instead of optimizing every 3D point independently, the compensation geometry is generated through a low-dimensional latent representation. The resulting pre-compensated shape is evaluated under a prescribed synthetic deformation model and optimized to reduce the mismatch between the manufactured shape and the target design.
 
-##  Method
+## Method
 
-This project learns to generate **pre-compensated 3D shapes** that will deform into the target design:
+Each experiment uses three components:
 
-- **Input**: 1. A 3D point cloud of the target shape； 2. A deformation function
-- **Output**: A compensated shape that can align with the target design model after distortion
+1. **Target geometry** — a synthetic 3D point cloud representing the desired final shape.
+2. **Latent-parameterized compensation** — a neural decoder maps a latent vector to a candidate pre-compensated point cloud.
+3. **Manufacturing distortion model** — the candidate geometry is passed through a prescribed synthetic deformation process, and the resulting built shape is compared with the target using Chamfer distance and/or pointwise error.
 
-Core components:
--  **Latent vector `z`**: Encodes the compensation strategy
--  **Decoder-only MLP**: Maps `z` to a 3D point cloud
--  **Loss**: Chamfer distance
+The decoder provides a structured geometric parameterization, while the latent variables provide a compact set of compensation coordinates.
 
-## Experiment Setups
+### Optimization scope
 
-| Folder        | Description                               |
-|---------------|-------------------------------------------|
-| `baseline/`   | Single object, single deformation         |
-| `variation1/` | Multiple sizes, fixed deformation         |
-| `variation2/` | Single object, multiple deformations      |
+The deformation functions in the current experiments are evaluated with a **stop-gradient update** (`detach()` in PyTorch). The optimization therefore treats the current deformation realization as an external response and updates the compensation geometry through the decoder/latent parameterization, rather than differentiating through the deformation law itself.
 
-### Visualization
-- `comparison.png` — 4-view comparison (original, deformed, compensated, built)
-- `error.png` — Heatmap of error magnitude
-- `rotation.gif` — Rotating 3D view of final built shape
+This makes the repository a useful prototype for studying latent geometric parameterization under synthetic manufacturing response without requiring a fully differentiable process model.
+
+## Experiments
+
+| Script | Experiment | Description |
+|---|---|---|
+| `baseline experiment.py` | Baseline | One spherical target with one nonlinear synthetic deformation model. The decoder and latent representation are initialized jointly, followed by latent-focused compensation refinement. |
+| `variation1.py` | Multiple deformation conditions | One target geometry evaluated across five different deformation parameter sets using a shared decoder and separate latent vectors. |
+| `variation2.py` | Multiple geometry scales | Five spherical target sizes evaluated under one shared deformation model using a shared decoder and separate latent vectors. |
+
+## Outputs
+
+The scripts generate visualization files such as:
+
+- `comparison.png` — target, raw deformation, compensation geometry, and final built geometry
+- `error.png` — pointwise geometric error visualization
+- `rotation.gif` — rotating visualization of the compensated result
+- `sample_*_detailed.png` and `sample1_rotation.gif` — multi-deformation experiment outputs
+- `sphere_*_comparison.png` — multi-size experiment outputs
+
+Generated images and GIFs are treated as experiment outputs and are ignored by Git by default.
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+The experiments require Python with PyTorch, NumPy, Matplotlib, and Pillow. CUDA is used automatically when available; otherwise the scripts run on CPU.
+
+## Running
+
+```bash
+python "baseline experiment.py"
+python variation1.py
+python variation2.py
+```
+
+The experiments are self-contained and generate their target point clouds and synthetic deformation conditions directly in code.
+
+## Research intent
+
+This repository explores whether a compact neural shape parameterization can organize geometric compensation more effectively than unconstrained pointwise updates. It is intended as a controlled computational prototype for latent-parameterized compensation, not as a calibrated physical manufacturing model.
