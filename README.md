@@ -24,7 +24,7 @@ This makes the repository a useful prototype for studying latent geometric param
 
 | Script | Experiment | Description |
 |---|---|---|
-| `baseline experiment.py` | Baseline | One spherical target with one nonlinear synthetic deformation model. The decoder and latent representation are initialized jointly, followed by latent-focused compensation refinement. |
+| `baseline.py` | Baseline | One spherical target with one nonlinear synthetic deformation model. The decoder and latent representation are initialized jointly, followed by latent-focused compensation refinement. |
 | `variation1.py` | Multiple deformation conditions | One target geometry evaluated across five different deformation parameter sets using a shared decoder and separate latent vectors. |
 | `variation2.py` | Multiple geometry scales | Five spherical target sizes evaluated under one shared deformation model using a shared decoder and separate latent vectors. |
 
@@ -51,7 +51,7 @@ The experiments require Python with PyTorch, NumPy, Matplotlib, and Pillow. CUDA
 ## Running
 
 ```bash
-python "baseline experiment.py"
+python baseline.py
 python variation1.py
 python variation2.py
 ```
