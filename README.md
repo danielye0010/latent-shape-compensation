@@ -1,44 +1,45 @@
 # Latent-Parameterized Geometric Compensation
 
-A simulation-driven prototype for geometric compensation in manufacturing using a neural decoder as a compact shape parameterization.
+A neural geometric-compensation framework that searches a low-dimensional latent space instead of optimizing thousands of 3D coordinates independently.
 
-The core idea is simple: instead of optimizing every 3D point independently, the compensation geometry is generated through a low-dimensional latent representation. The resulting pre-compensated shape is evaluated under a prescribed synthetic deformation model and optimized to reduce the mismatch between the manufactured shape and the target design.
+The core idea is to represent a pre-compensated geometry through a neural decoder, apply a synthetic manufacturing-distortion model, and optimize the latent representation so the final built shape approaches the target design. This gives the compensation problem a compact, structured geometric parameterization rather than an unconstrained pointwise one.
+
+## Highlights
+
+- **Low-dimensional compensation search** through latent variables
+- **Neural decoder geometry parameterization** for structured 3D shape updates
+- **Simulation-driven optimization** against manufacturing distortion
+- **Chamfer-distance geometric objectives** for target recovery
+- Experiments across **multiple deformation conditions** and **multiple geometry scales**
+- Automatic visualization of compensation quality and pointwise geometric error
 
 ## Method
 
-Each experiment uses three components:
+Each experiment combines three components:
 
-1. **Target geometry** — a synthetic 3D point cloud representing the desired final shape.
-2. **Latent-parameterized compensation** — a neural decoder maps a latent vector to a candidate pre-compensated point cloud.
-3. **Manufacturing distortion model** — the candidate geometry is passed through a prescribed synthetic deformation process, and the resulting built shape is compared with the target using Chamfer distance and/or pointwise error.
+1. **Target geometry** — the desired final 3D shape.
+2. **Latent-parameterized compensation** — a neural decoder maps latent coordinates to a candidate pre-compensated geometry.
+3. **Manufacturing response** — a prescribed deformation process maps the compensated geometry to the simulated built shape.
 
-The decoder provides a structured geometric parameterization, while the latent variables provide a compact set of compensation coordinates.
-
-### Optimization scope
-
-The deformation functions in the current experiments are evaluated with a **stop-gradient update** (`detach()` in PyTorch). The optimization therefore treats the current deformation realization as an external response and updates the compensation geometry through the decoder/latent parameterization, rather than differentiating through the deformation law itself.
-
-This makes the repository a useful prototype for studying latent geometric parameterization under synthetic manufacturing response without requiring a fully differentiable process model.
+Optimization updates the latent representation to reduce the geometric mismatch between the built shape and the target.
 
 ## Experiments
 
 | Script | Experiment | Description |
 |---|---|---|
-| `baseline.py` | Baseline | One spherical target with one nonlinear synthetic deformation model. The decoder and latent representation are initialized jointly, followed by latent-focused compensation refinement. |
-| `variation1.py` | Multiple deformation conditions | One target geometry evaluated across five different deformation parameter sets using a shared decoder and separate latent vectors. |
+| `baseline.py` | Baseline | One spherical target with one nonlinear synthetic deformation model. |
+| `variation1.py` | Multiple deformation conditions | One target geometry evaluated across five deformation parameter sets using a shared decoder and separate latent vectors. |
 | `variation2.py` | Multiple geometry scales | Five spherical target sizes evaluated under one shared deformation model using a shared decoder and separate latent vectors. |
 
 ## Outputs
 
 The scripts generate visualization files such as:
 
-- `comparison.png` — target, raw deformation, compensation geometry, and final built geometry
-- `error.png` — pointwise geometric error visualization
-- `rotation.gif` — rotating visualization of the compensated result
-- `sample_*_detailed.png` and `sample1_rotation.gif` — multi-deformation experiment outputs
-- `sphere_*_comparison.png` — multi-size experiment outputs
-
-Generated images and GIFs are treated as experiment outputs and are ignored by Git by default.
+- `comparison.png` — target, uncompensated deformation, compensation geometry, and final built geometry
+- `error.png` — pointwise geometric-error visualization
+- `rotation.gif` — rotating 3D visualization of the compensated result
+- `sample_*_detailed.png` and `sample1_rotation.gif` — multi-deformation outputs
+- `sphere_*_comparison.png` — multi-size outputs
 
 ## Installation
 
@@ -46,7 +47,7 @@ Generated images and GIFs are treated as experiment outputs and are ignored by G
 pip install -r requirements.txt
 ```
 
-The experiments require Python with PyTorch, NumPy, Matplotlib, and Pillow. CUDA is used automatically when available; otherwise the scripts run on CPU.
+CUDA is used automatically when available; the experiments also run on CPU.
 
 ## Running
 
@@ -58,6 +59,10 @@ python variation2.py
 
 The experiments are self-contained and generate their target point clouds and synthetic deformation conditions directly in code.
 
-## Research intent
+## Research direction
 
-This repository explores whether a compact neural shape parameterization can organize geometric compensation more effectively than unconstrained pointwise updates. It is intended as a controlled computational prototype for latent-parameterized compensation, not as a calibrated physical manufacturing model.
+This project explores a broader idea for manufacturing compensation: **learn or construct a compact shape space first, then solve compensation inside that space**. The same framework can be extended from synthetic distortion functions to FEM-based, experimental, or learned manufacturing-response models.
+
+## Implementation note
+
+The current synthetic deformation functions are evaluated with a stop-gradient update (`detach()` in PyTorch). In this implementation, the optimizer updates compensation through the decoder/latent parameterization while treating each evaluated deformation realization as an external response. A fully differentiable process model could be plugged into the same framework when available.
